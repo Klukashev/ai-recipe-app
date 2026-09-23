@@ -1,5 +1,5 @@
 import type { GenerateInput, RecipeDraft } from "../types";
-import { generateRecipeWithMock } from "./mock";
+import { generateRecipeWithMock } from "./mock.ts";
 
 /**
  * The single swap point for recipe generation.

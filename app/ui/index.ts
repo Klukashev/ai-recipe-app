@@ -9,7 +9,7 @@
 export { Alert } from "./alert";
 export { Button, buttonStyles, type ButtonSize, type ButtonVariant } from "./button";
 export { Card, PageTitle, SectionLabel, type CardPadding } from "./card";
-export { RemovableChip, Tag, ToggleChip } from "./chip";
+export { Badge, RemovableChip, Tag, ToggleChip, type BadgeTone } from "./chip";
 export { Field, Input, Select, Textarea } from "./field";
 export { cn } from "./styles";
 export { ThemeToggle } from "./theme-toggle";

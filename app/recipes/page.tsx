@@ -2,7 +2,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 
 import { listRecipes } from "@/lib/store";
-import { buttonStyles, Card, PageTitle } from "@/app/ui";
+import { Badge, buttonStyles, Card, PageTitle } from "@/app/ui";
 
 export const metadata = {
   title: "My recipes — Fridge Chef",
@@ -14,6 +14,7 @@ export default async function RecipesPage() {
   // request so the list is always current.
   await connection();
   const recipes = await listRecipes();
+  const tested = recipes.filter((recipe) => recipe.cookLog.length > 0).length;
 
   return (
     <div className="space-y-8">
@@ -21,6 +22,7 @@ export default async function RecipesPage() {
         <PageTitle>My recipes</PageTitle>
         <p className="text-sm text-muted">
           {recipes.length} saved{recipes.length === 1 ? " recipe" : " recipes"}
+          {tested > 0 && ` · ${tested} tested`}
         </p>
       </div>
 
@@ -37,6 +39,15 @@ export default async function RecipesPage() {
             <li key={recipe.id}>
               <Link href={`/recipes/${recipe.id}`} className="block h-full">
                 <Card interactive className="flex h-full flex-col gap-3">
+                  <div>
+                    {recipe.cookLog.length === 0 ? (
+                      <Badge>Untested</Badge>
+                    ) : (
+                      <Badge tone="accent">
+                        Cooked {recipe.cookLog.length}×
+                      </Badge>
+                    )}
+                  </div>
                   <h2 className="font-semibold leading-snug text-balance">
                     {recipe.title}
                   </h2>

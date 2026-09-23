@@ -8,7 +8,7 @@ import { RecipeDetail } from "@/app/components/recipe-detail";
 export default async function RecipePage(props: PageProps<"/recipes/[id]">) {
   await connection();
   const { id } = await props.params;
-  const recipe = await getRecipe(id);
+  const [recipe, search] = await Promise.all([getRecipe(id), props.searchParams]);
 
   if (!recipe) notFound();
 
@@ -20,7 +20,8 @@ export default async function RecipePage(props: PageProps<"/recipes/[id]">) {
       >
         <span aria-hidden>←</span> All recipes
       </Link>
-      <RecipeDetail recipe={recipe} />
+      {/* Cook mode finishes by sending you here with the log form already open. */}
+      <RecipeDetail recipe={recipe} justCooked={search.cooked === "1"} />
     </div>
   );
 }

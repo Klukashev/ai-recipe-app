@@ -1,4 +1,5 @@
-import type { Diet, GenerateInput, RecipeDraft } from "../types";
+import { parseIngredientLine } from "../ingredients.ts";
+import type { Diet, GenerateInput, Ingredient, RecipeDraft } from "../types";
 
 /**
  * A local stand-in for a real model.
@@ -207,7 +208,10 @@ type Template = {
   // `kind` isn't a template's job — the generator stamps it from `id` below.
   build: (
     pantry: Pantry,
-  ) => Omit<RecipeDraft, "sourceIngredients" | "generatedBy" | "servings" | "kind">;
+  ) => Omit<RecipeDraft, "sourceIngredients" | "generatedBy" | "servings" | "kind" | "ingredients"> & {
+    /** Written lines; parsed into structure by the generator below. */
+    ingredients: string[];
+  };
 };
 
 const SEASONING = ["salt", "black pepper", "olive oil"];
@@ -247,7 +251,7 @@ const TEMPLATES: Template[] = [
         ingredients: [
           ...p.proteins.map((item) => `${grams(300, p.input.servings)} ${item.toLowerCase()}, sliced thin`),
           ...veg.map((item) => `${grams(200, p.input.servings)} ${item.toLowerCase()}, cut into bite-size pieces`),
-          ...aromatics.map((item) => `2 cloves / 1 piece ${item.toLowerCase()}, finely chopped`),
+          ...aromatics.map((item) => `2 cloves ${item.toLowerCase()}, finely chopped`),
           ...(p.starches.length > 0
             ? [`${grams(150, p.input.servings)} ${p.starches[0].toLowerCase()}, cooked, to serve`]
             : []),
@@ -619,8 +623,13 @@ export async function generateRecipeWithMock(
   // real model later doesn't change how the UI feels.
   await new Promise((resolve) => setTimeout(resolve, 400));
 
+  const ingredients: Ingredient[] = draft.ingredients
+    .filter((line) => line.trim().length > 0)
+    .map(parseIngredientLine);
+
   return {
     ...draft,
+    ingredients,
     kind: chosen.id,
     servings: input.servings,
     tags: [...new Set([...draft.tags, input.meal, ...input.diets])],
