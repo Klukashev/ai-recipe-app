@@ -29,7 +29,7 @@ Then open http://localhost:3000. No API keys, no database, no other setup.
 | [lib/steps.ts](lib/steps.ts) | Timer extraction from method steps |
 | [app/ui/](app/ui/) | **The design system** — tokens and primitives |
 | [app/style-guide/page.tsx](app/style-guide/page.tsx) | Live documentation of the system |
-| [public/kitchen-pattern.svg](public/kitchen-pattern.svg) | The chef-theme backdrop tile |
+| [public/botanical-pattern.svg](public/botanical-pattern.svg) | The botanical backdrop tile |
 
 There are no REST routes. Mutations go through server actions, which are
 re-validated server-side because they're reachable by direct POST, not just
@@ -129,13 +129,16 @@ which is visible as the page flipping theme as it loads.
 
 ### The backdrop
 
-Every page sits on a repeating tile of kitchen line art — toque, whisk, pan,
-herbs, rolling pin, spoon, egg, knife. It's applied as a CSS **mask** rather
-than a background image (`.kitchen-backdrop` in
-[app/globals.css](app/globals.css)), so the ink colour comes from
-`--foreground` and follows the light/dark theme without needing two files. To
-change it, edit the single SVG tile; to dial it up or down, change one
+Every page sits on a repeating tile of botanical line art — a broad leaf, a
+rosemary sprig, a citrus half, basil, a chilli, a lemon, a pea pod and mint.
+It's applied as a CSS **mask** rather than a background image
+(`.botanical-backdrop` in [app/globals.css](app/globals.css)), so the ink colour
+comes from `--foreground` and follows the light/dark theme without needing two
+files. To change it, edit the single SVG tile; to dial it up or down, change one
 `opacity`.
+
+Strokes are kept bold and interior detail sparse on purpose: at 5% opacity, fine
+line work turns to mush.
 
 ### Storage
 

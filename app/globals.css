@@ -13,26 +13,31 @@
    ========================================================================== */
 
 :root {
-  /* Surfaces */
-  --background: #fbfaf7;
+  /* Surfaces — a barely-yellow white, so the page reads fresh rather than grey */
+  --background: #fbfdf6;
   --card: #ffffff;
-  --border: #e7e2d9;
+  --border: #e4ebd6;
 
   /* Ink */
-  --foreground: #1c1917;
-  --muted: #78716c;
+  --foreground: #1a1f12;
+  --muted: #67725a;
 
-  /* Accent — the one brand colour, used for primary actions and highlights */
-  --accent: #b45309;
-  --accent-contrast: #fbfaf7; /* text/icons placed on top of --accent */
+  /*
+   * Accent — the one brand colour, used for primary actions and highlights.
+   * Lime-olive rather than a brighter leaf green: white text on it clears 4.5:1,
+   * which a lighter, zestier green does not, and buttons here carry real labels.
+   */
+  --accent: #4d7c0f;
+  --accent-contrast: #ffffff; /* text/icons placed on top of --accent */
   --accent-soft: color-mix(in oklab, var(--accent) 12%, transparent);
   --accent-soft-hover: color-mix(in oklab, var(--accent) 22%, transparent);
 
-  /* Destructive actions and error messages */
+  /* Destructive actions and error messages. Kept red: against a green accent
+     it stays unmistakably "stop", which an orange or amber would not. */
   --danger: #b91c1c;
   --danger-soft: color-mix(in oklab, var(--danger) 10%, transparent);
 
-  /* Decorative backdrop strength (see .kitchen-backdrop) */
+  /* Decorative backdrop strength (see .botanical-backdrop) */
   --backdrop-opacity: 0.05;
 }
 
@@ -45,26 +50,26 @@
  */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --background: #0c0a09;
-    --card: #17140f;
-    --border: #2c2721;
-    --foreground: #f5f5f4;
-    --muted: #a8a29e;
-    --accent: #f59e0b;
-    --accent-contrast: #1c1917;
+    --background: #0d0f08;
+    --card: #161a0f;
+    --border: #2a3020;
+    --foreground: #f4f7ea;
+    --muted: #a3ad93;
+    --accent: #a3e635;
+    --accent-contrast: #131a06;
     --danger: #f87171;
     --backdrop-opacity: 0.07;
   }
 }
 
 :root[data-theme="dark"] {
-  --background: #0c0a09;
-  --card: #17140f;
-  --border: #2c2721;
-  --foreground: #f5f5f4;
-  --muted: #a8a29e;
-  --accent: #f59e0b;
-  --accent-contrast: #1c1917;
+  --background: #0d0f08;
+  --card: #161a0f;
+  --border: #2a3020;
+  --foreground: #f4f7ea;
+  --muted: #a3ad93;
+  --accent: #a3e635;
+  --accent-contrast: #131a06;
   --danger: #f87171;
   --backdrop-opacity: 0.07;
 }
@@ -124,27 +129,27 @@ button {
 }
 
 /*
- * Chef-theme backdrop: a repeating tile of kitchen line art (toque, whisk, pan,
- * herbs, knife…) behind everything.
+ * Botanical backdrop: a repeating tile of herbs, leaves and citrus behind
+ * everything.
  *
  * The SVG is applied as a *mask* rather than a background image, so the ink
  * colour comes from `--foreground` and follows the theme on its own — one asset
  * instead of a light and a dark copy. Opacity is deliberately low: it should
  * read as paper texture, not as decoration competing with a recipe.
  */
-.kitchen-backdrop {
+.botanical-backdrop {
   background-color: var(--foreground);
   opacity: var(--backdrop-opacity);
-  -webkit-mask-image: url("/kitchen-pattern.svg");
-  mask-image: url("/kitchen-pattern.svg");
+  -webkit-mask-image: url("/botanical-pattern.svg");
+  mask-image: url("/botanical-pattern.svg");
   -webkit-mask-repeat: repeat;
   mask-repeat: repeat;
   -webkit-mask-size: 300px 300px;
   mask-size: 300px 300px;
 }
 
-/* A warm wash from the top, so the page feels lit rather than flat. */
-.kitchen-glow {
+/* A soft wash of the accent from the top, so the page feels lit rather than flat. */
+.page-glow {
   background: radial-gradient(
     120% 70% at 50% -10%,
     color-mix(in oklab, var(--accent) 14%, transparent),

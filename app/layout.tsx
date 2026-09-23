@@ -45,8 +45,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="font-sans min-h-full flex flex-col bg-background text-foreground">
         {/* Decorative only — sits behind all content and is hidden from screen readers. */}
-        <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 kitchen-glow" />
-        <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 kitchen-backdrop" />
+        <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 page-glow" />
+        <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 botanical-backdrop" />
 
         <header className="border-b border-edge">
           <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-4 px-5 py-4">

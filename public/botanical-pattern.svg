@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+  <!--
+    Seamless botanical tile: herbs, leaves and citrus rather than pans and
+    knives. Used as a CSS mask (see .botanical-backdrop in app/globals.css), so
+    the ink colour comes from the page and follows the theme automatically.
+
+    Strokes are kept bold and interior detail sparse on purpose — at 5% opacity
+    fine line work turns to mush. Every motif sits well inside the 300x300 tile
+    so nothing is clipped where it repeats.
+  -->
+  <g fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- broad leaf -->
+    <g transform="translate(16 14) rotate(-10)">
+      <path d="M20 36C8 28 8 12 20 4c12 8 12 24 0 32z"/>
+      <path d="M20 34V8"/>
+      <path d="M20 15l-6-4M20 22l6-4M20 29l-6-4"/>
+    </g>
+
+    <!-- rosemary sprig -->
+    <g transform="translate(124 10) rotate(13)">
+      <path d="M20 38V6"/>
+      <path d="M20 32l-8-4M20 32l8-4M20 26l-8-4M20 26l8-4M20 20l-7-4M20 20l7-4M20 14l-6-3M20 14l6-3"/>
+    </g>
+
+    <!-- citrus half -->
+    <g transform="translate(228 48) rotate(-6)">
+      <circle cx="20" cy="20" r="15"/>
+      <circle cx="20" cy="20" r="11"/>
+      <path d="M20 9v22M9.2 14.5l21.6 11M9.2 25.5l21.6-11"/>
+    </g>
+
+    <!-- basil branch -->
+    <g transform="translate(40 126) rotate(9)">
+      <path d="M20 38V12"/>
+      <path d="M20 28c-8-2-10-9-9-14 6 1 10 7 9 14z"/>
+      <path d="M20 22c8-2 10-9 9-14-6 1-10 7-9 14z"/>
+      <path d="M20 14c-3-4-3-9-1-12 3 3 4 8 1 12z"/>
+    </g>
+
+    <!-- chilli -->
+    <g transform="translate(148 120) rotate(-20)">
+      <path d="M16 13c10 0 17 8 17 16 0 4-3 7-7 7-8 0-13-8-13-17"/>
+      <path d="M16 13l-4-6M12 7l6 1"/>
+    </g>
+
+    <!-- whole lemon with a leaf -->
+    <g transform="translate(232 162) rotate(10)">
+      <ellipse cx="19" cy="25" rx="13" ry="10"/>
+      <path d="M25 15c2-6 8-8 11-7-1 5-6 8-10 7z"/>
+      <path d="M26 15l-4 4"/>
+    </g>
+
+    <!-- pea pod -->
+    <g transform="translate(22 226) rotate(18)">
+      <path d="M9 7c14 2 23 13 23 28"/>
+      <path d="M9 7c10 6 16 16 17 28"/>
+      <circle cx="16" cy="16" r="3"/>
+      <circle cx="21" cy="24" r="3"/>
+      <circle cx="25" cy="32" r="3"/>
+    </g>
+
+    <!-- mint sprig -->
+    <g transform="translate(136 238) rotate(-8)">
+      <path d="M20 38V8"/>
+      <ellipse cx="13" cy="28" rx="6" ry="4" transform="rotate(-22 13 28)"/>
+      <ellipse cx="27" cy="28" rx="6" ry="4" transform="rotate(22 27 28)"/>
+      <ellipse cx="14" cy="19" rx="5" ry="3.5" transform="rotate(-22 14 19)"/>
+      <ellipse cx="26" cy="19" rx="5" ry="3.5" transform="rotate(22 26 19)"/>
+      <ellipse cx="20" cy="10" rx="4" ry="3.5"/>
+    </g>
+
+    <!-- small leaf, to fill the last corner -->
+    <g transform="translate(238 240) rotate(-22)">
+      <path d="M17 30C9 24 9 13 17 7c8 6 8 17 0 23z"/>
+      <path d="M17 29V9"/>
+    </g>
+  </g>
+</svg>
