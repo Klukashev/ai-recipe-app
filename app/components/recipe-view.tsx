@@ -1,3 +1,4 @@
+import { Card, PageTitle, SectionLabel, Tag } from "@/app/ui";
 import type { RecipeDraft } from "@/lib/types";
 
 /**
@@ -8,9 +9,7 @@ export function RecipeView({ recipe }: { recipe: RecipeDraft }) {
   return (
     <article className="space-y-8">
       <header className="space-y-3">
-        <h1 className="text-3xl font-semibold tracking-tight text-balance">
-          {recipe.title}
-        </h1>
+        <PageTitle>{recipe.title}</PageTitle>
         {recipe.summary && (
           <p className="text-muted leading-relaxed">{recipe.summary}</p>
         )}
@@ -27,11 +26,8 @@ export function RecipeView({ recipe }: { recipe: RecipeDraft }) {
         {recipe.tags.length > 0 && (
           <ul className="flex flex-wrap gap-1.5 pt-1">
             {recipe.tags.map((tag) => (
-              <li
-                key={tag}
-                className="rounded-full border border-edge px-2.5 py-0.5 text-xs text-muted"
-              >
-                {tag}
+              <li key={tag}>
+                <Tag>{tag}</Tag>
               </li>
             ))}
           </ul>
@@ -40,9 +36,7 @@ export function RecipeView({ recipe }: { recipe: RecipeDraft }) {
 
       <div className="grid gap-8 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
         <section className="space-y-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
-            Ingredients
-          </h2>
+          <SectionLabel>Ingredients</SectionLabel>
           <ul className="space-y-2 text-sm leading-relaxed">
             {recipe.ingredients.map((ingredient, index) => (
               <li key={`${ingredient}-${index}`} className="flex gap-2.5">
@@ -54,13 +48,11 @@ export function RecipeView({ recipe }: { recipe: RecipeDraft }) {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
-            Method
-          </h2>
+          <SectionLabel>Method</SectionLabel>
           <ol className="space-y-4">
             {recipe.steps.map((step, index) => (
               <li key={`${index}-${step.slice(0, 12)}`} className="flex gap-3">
-                <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-accent/15 font-mono text-xs font-medium text-accent">
+                <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-soft font-mono text-xs font-medium text-accent">
                   {index + 1}
                 </span>
                 <p className="leading-relaxed">{step}</p>
@@ -71,16 +63,14 @@ export function RecipeView({ recipe }: { recipe: RecipeDraft }) {
       </div>
 
       {recipe.tips.length > 0 && (
-        <section className="space-y-3 rounded-xl border border-edge bg-card p-5">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
-            Notes
-          </h2>
+        <Card className="space-y-3">
+          <SectionLabel>Notes</SectionLabel>
           <ul className="space-y-2 text-sm leading-relaxed text-muted">
             {recipe.tips.map((tip, index) => (
               <li key={`${index}-${tip.slice(0, 12)}`}>{tip}</li>
             ))}
           </ul>
-        </section>
+        </Card>
       )}
 
       {recipe.sourceIngredients.length > 0 && (

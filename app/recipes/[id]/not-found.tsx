@@ -1,18 +1,17 @@
 import Link from "next/link";
 
+import { buttonStyles, Card, PageTitle } from "@/app/ui";
+
 export default function RecipeNotFound() {
   return (
-    <div className="rounded-xl border border-dashed border-edge p-10 text-center">
-      <h1 className="text-xl font-semibold">That recipe isn&apos;t here</h1>
+    <Card hollow padding="lg" className="text-center">
+      <PageTitle className="text-xl">That recipe isn&apos;t here</PageTitle>
       <p className="mt-2 text-sm text-muted">
         It may have been deleted, or the link is wrong.
       </p>
-      <Link
-        href="/recipes"
-        className="mt-6 inline-block rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
-      >
+      <Link href="/recipes" className={buttonStyles({ className: "mt-6" })}>
         Back to my recipes
       </Link>
-    </div>
+    </Card>
   );
 }

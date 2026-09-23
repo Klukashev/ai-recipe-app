@@ -23,11 +23,52 @@ Then open http://localhost:3000. No API keys, no database, no other setup.
 | [lib/ai/index.ts](lib/ai/index.ts) | **The generation swap point** |
 | [lib/ai/mock.ts](lib/ai/mock.ts) | The local generator used today |
 | [lib/store.ts](lib/store.ts) | JSON-file persistence |
+| [app/ui/](app/ui/) | **The design system** — tokens and primitives |
+| [app/style-guide/page.tsx](app/style-guide/page.tsx) | Live documentation of the system |
 | [public/kitchen-pattern.svg](public/kitchen-pattern.svg) | The chef-theme backdrop tile |
 
 There are no REST routes. Mutations go through server actions, which are
 re-validated server-side because they're reachable by direct POST, not just
 through the UI.
+
+### Design system
+
+All styling comes from one place. **Tokens** live in the `:root` block of
+[app/globals.css](app/globals.css) — semantic names (`--accent`, `--danger`,
+`--muted`) rather than literal ones, which is what lets the dark theme swap
+values underneath the same names. They're exposed to Tailwind via
+`@theme inline`, so they become real utilities: `bg-card`, `text-muted`,
+`border-edge`, `bg-accent-soft`, `rounded-card`, `shadow-card`.
+
+**Components** live in [app/ui/](app/ui/) and are imported from `@/app/ui`:
+
+| Component | Variants |
+| --- | --- |
+| `Button` / `buttonStyles` | `primary` `secondary` `ghost` `danger` × `sm` `md` `lg` |
+| `Field` `Input` `Textarea` `Select` | label + control + hint, one shared control style |
+| `Card` | `padding`, `hollow` (empty states), `interactive` (hover lift) |
+| `Tag` `RemovableChip` `ToggleChip` | static / removable / on-off pills |
+| `Alert` | `danger` (announced to screen readers) or `muted` |
+| `PageTitle` `SectionLabel` | the two heading treatments |
+
+Two rules keep it from rotting. **Nothing outside `app/ui/` hard-codes a colour,
+radius or button style** — if you need something that isn't there, add it there
+first. And `buttonStyles()` exists so a `<Link>` that should look like a button
+uses the real definition instead of a copied class string, which is exactly how
+five slightly different primary buttons appeared before this existed.
+
+There are no `dark:` variants anywhere: the token layer handles both themes, so
+each component is written once.
+
+See **`/style-guide`** for every token, type size, radius and component variant
+rendered live. Flip the theme control in the header to check both palettes.
+
+### Theme
+
+Light and dark follow the OS by default. The header control overrides that per
+browser, stored in `localStorage` and applied by a small blocking script in
+`<head>`. It has to be blocking — anything deferred runs after first paint,
+which is visible as the page flipping theme as it loads.
 
 ### The backdrop
 

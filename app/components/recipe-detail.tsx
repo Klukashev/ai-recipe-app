@@ -4,11 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { deleteRecipeAction, updateRecipeAction } from "@/app/actions";
+import { Alert, Button, Field, Input, PageTitle, Textarea } from "@/app/ui";
 import type { Recipe, RecipeEdit } from "@/lib/types";
 import { RecipeView } from "./recipe-view";
-
-const field =
-  "w-full rounded-lg border border-edge bg-card px-3 py-2 text-sm outline-none transition-colors focus:border-accent";
 
 /** Multi-line fields are edited as one item per line — the simplest thing that
  *  lets you reorder and rewrite steps without a drag-and-drop list. */
@@ -22,6 +20,9 @@ function fromLines(value: string): string[] {
     .map((line) => line.trim())
     .filter(Boolean);
 }
+
+/** Monospace keeps the one-per-line structure obvious while editing. */
+const LINES = "font-mono text-xs leading-relaxed";
 
 export function RecipeDetail({ recipe }: { recipe: Recipe }) {
   const router = useRouter();
@@ -86,21 +87,10 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
         <RecipeView recipe={recipe} />
 
         <div className="flex flex-wrap items-center gap-3 border-t border-edge pt-6">
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
-          >
-            Edit recipe
-          </button>
-          <button
-            type="button"
-            onClick={remove}
-            disabled={isDeleting}
-            className="rounded-full border border-edge px-5 py-2.5 text-sm font-medium text-muted transition-colors hover:border-red-500 hover:text-red-500 disabled:opacity-50"
-          >
+          <Button onClick={() => setEditing(true)}>Edit recipe</Button>
+          <Button variant="danger" onClick={remove} disabled={isDeleting}>
             {isDeleting ? "Deleting…" : "Delete"}
-          </button>
+          </Button>
           <span className="text-xs text-muted">
             Saved {new Date(recipe.createdAt).toLocaleDateString()}
             {recipe.updatedAt !== recipe.createdAt &&
@@ -113,140 +103,122 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-2xl font-semibold tracking-tight">Editing recipe</h1>
+      <PageTitle className="text-2xl">Editing recipe</PageTitle>
 
-      <div className="space-y-1.5">
-        <label htmlFor="title" className="block text-sm font-medium">
-          Title
-        </label>
-        <input
+      <Field htmlFor="title" label="Title">
+        <Input
           id="title"
           value={form.title}
           onChange={(event) => set("title", event.target.value)}
-          className={field}
         />
-      </div>
+      </Field>
 
-      <div className="space-y-1.5">
-        <label htmlFor="summary" className="block text-sm font-medium">
-          Summary
-        </label>
-        <textarea
+      <Field htmlFor="summary" label="Summary">
+        <Textarea
           id="summary"
           rows={2}
           value={form.summary}
           onChange={(event) => set("summary", event.target.value)}
-          className={`${field} resize-y`}
         />
-      </div>
+      </Field>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="space-y-1.5">
-          <label htmlFor="edit-servings" className="block text-sm font-medium">
-            Servings
-          </label>
-          <input
+        <Field htmlFor="edit-servings" label="Servings">
+          <Input
             id="edit-servings"
             type="number"
             min={1}
             max={12}
             value={form.servings}
             onChange={(event) => set("servings", Number(event.target.value))}
-            className={field}
           />
-        </div>
-        <div className="space-y-1.5">
-          <label htmlFor="edit-minutes" className="block text-sm font-medium">
-            Minutes
-          </label>
-          <input
+        </Field>
+        <Field htmlFor="edit-minutes" label="Minutes">
+          <Input
             id="edit-minutes"
             type="number"
             min={1}
             max={600}
             value={form.totalMinutes}
             onChange={(event) => set("totalMinutes", Number(event.target.value))}
-            className={field}
           />
-        </div>
-        <div className="space-y-1.5">
-          <label htmlFor="edit-tags" className="block text-sm font-medium">
-            Tags
-          </label>
-          <input
+        </Field>
+        <Field htmlFor="edit-tags" label="Tags">
+          <Input
             id="edit-tags"
             value={form.tags}
             onChange={(event) => set("tags", event.target.value)}
             placeholder="comma separated"
-            className={field}
           />
-        </div>
+        </Field>
       </div>
 
-      <div className="space-y-1.5">
-        <label htmlFor="edit-ingredients" className="block text-sm font-medium">
-          Ingredients <span className="font-normal text-muted">— one per line</span>
-        </label>
-        <textarea
+      <Field
+        htmlFor="edit-ingredients"
+        label={
+          <>
+            Ingredients <span className="font-normal text-muted">— one per line</span>
+          </>
+        }
+      >
+        <Textarea
           id="edit-ingredients"
           rows={Math.max(6, recipe.ingredients.length + 1)}
           value={form.ingredients}
           onChange={(event) => set("ingredients", event.target.value)}
-          className={`${field} resize-y font-mono text-xs leading-relaxed`}
+          className={LINES}
         />
-      </div>
+      </Field>
 
-      <div className="space-y-1.5">
-        <label htmlFor="edit-steps" className="block text-sm font-medium">
-          Method <span className="font-normal text-muted">— one step per line</span>
-        </label>
-        <textarea
+      <Field
+        htmlFor="edit-steps"
+        label={
+          <>
+            Method <span className="font-normal text-muted">— one step per line</span>
+          </>
+        }
+      >
+        <Textarea
           id="edit-steps"
           rows={Math.max(8, recipe.steps.length + 2)}
           value={form.steps}
           onChange={(event) => set("steps", event.target.value)}
-          className={`${field} resize-y font-mono text-xs leading-relaxed`}
+          className={LINES}
         />
-      </div>
+      </Field>
 
-      <div className="space-y-1.5">
-        <label htmlFor="edit-tips" className="block text-sm font-medium">
-          Notes <span className="font-normal text-muted">— one per line</span>
-        </label>
-        <textarea
+      <Field
+        htmlFor="edit-tips"
+        label={
+          <>
+            Notes <span className="font-normal text-muted">— one per line</span>
+          </>
+        }
+      >
+        <Textarea
           id="edit-tips"
           rows={4}
           value={form.tips}
           onChange={(event) => set("tips", event.target.value)}
-          className={`${field} resize-y font-mono text-xs leading-relaxed`}
+          className={LINES}
         />
-      </div>
+      </Field>
 
-      {error && (
-        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
-          {error}
-        </p>
-      )}
+      {error && <Alert>{error}</Alert>}
 
       <div className="flex flex-wrap gap-3 border-t border-edge pt-5">
-        <button
-          type="button"
-          onClick={save}
-          disabled={isSaving}
-          className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
-        >
+        <Button onClick={save} disabled={isSaving}>
           {isSaving ? "Saving…" : "Save changes"}
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant="secondary"
           onClick={() => {
             setEditing(false);
             setError(null);
           }}
-          className="rounded-full border border-edge px-5 py-2.5 text-sm font-medium transition-colors hover:border-accent hover:text-accent"
         >
           Cancel
-        </button>
+        </Button>
       </div>
     </div>
   );
