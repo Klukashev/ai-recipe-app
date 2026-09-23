@@ -3,9 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
+import Link from "next/link";
+
 import { deleteRecipeAction, updateRecipeAction } from "@/app/actions";
-import { Alert, Button, Field, Input, PageTitle, Textarea } from "@/app/ui";
+import { Alert, Button, buttonStyles, Field, Input, PageTitle, Textarea } from "@/app/ui";
+import { formatIngredientLines, parseIngredientLines } from "@/lib/ingredients";
 import type { Recipe, RecipeEdit } from "@/lib/types";
+import { CookLog } from "./cook-log";
 import { RecipeView } from "./recipe-view";
 
 /** Multi-line fields are edited as one item per line — the simplest thing that
@@ -24,7 +28,14 @@ function fromLines(value: string): string[] {
 /** Monospace keeps the one-per-line structure obvious while editing. */
 const LINES = "font-mono text-xs leading-relaxed";
 
-export function RecipeDetail({ recipe }: { recipe: Recipe }) {
+export function RecipeDetail({
+  recipe,
+  justCooked = false,
+}: {
+  recipe: Recipe;
+  /** Arriving from the end of cook mode — open the log form straight away. */
+  justCooked?: boolean;
+}) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +48,7 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
     servings: recipe.servings,
     totalMinutes: recipe.totalMinutes,
     tags: recipe.tags.join(", "),
-    ingredients: toLines(recipe.ingredients),
+    ingredients: formatIngredientLines(recipe.ingredients),
     steps: toLines(recipe.steps),
     tips: toLines(recipe.tips),
   });
@@ -57,7 +68,7 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
         .split(",")
         .map((tag) => tag.trim())
         .filter(Boolean),
-      ingredients: fromLines(form.ingredients),
+      ingredients: parseIngredientLines(form.ingredients),
       steps: fromLines(form.steps),
       tips: fromLines(form.tips),
     };
@@ -84,10 +95,13 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
   if (!editing) {
     return (
       <div className="space-y-8">
-        <RecipeView recipe={recipe} />
+        <RecipeView recipe={recipe} cookLog={recipe.cookLog} />
 
         <div className="flex flex-wrap items-center gap-3 border-t border-edge pt-6">
-          <Button onClick={() => setEditing(true)}>Edit recipe</Button>
+          <Link href={`/recipes/${recipe.id}/cook`} className={buttonStyles({ size: "lg" })}>
+            Start cooking
+          </Link>
+          <Button variant="secondary" onClick={() => setEditing(true)}>Edit recipe</Button>
           <Button variant="danger" onClick={remove} disabled={isDeleting}>
             {isDeleting ? "Deleting…" : "Delete"}
           </Button>
@@ -96,6 +110,10 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
             {recipe.updatedAt !== recipe.createdAt &&
               ` · edited ${new Date(recipe.updatedAt).toLocaleDateString()}`}
           </span>
+        </div>
+
+        <div className="border-t border-edge pt-6">
+          <CookLog recipeId={recipe.id} entries={recipe.cookLog} startOpen={justCooked} />
         </div>
       </div>
     );

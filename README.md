@@ -18,11 +18,15 @@ Then open http://localhost:3000. No API keys, no database, no other setup.
 | --- | --- |
 | [app/page.tsx](app/page.tsx) | The generator screen |
 | [app/recipes/page.tsx](app/recipes/page.tsx) | Saved recipes |
-| [app/recipes/[id]/page.tsx](app/recipes/%5Bid%5D/page.tsx) | One recipe — view, edit, delete |
+| [app/recipes/[id]/page.tsx](app/recipes/%5Bid%5D/page.tsx) | One recipe — view, scale, edit, log, delete |
+| [app/recipes/[id]/cook/page.tsx](app/recipes/%5Bid%5D/cook/page.tsx) | Cook mode |
 | [app/actions.ts](app/actions.ts) | Server actions: generate, save, update, delete |
 | [lib/ai/index.ts](lib/ai/index.ts) | **The generation swap point** |
 | [lib/ai/mock.ts](lib/ai/mock.ts) | The local generator used today |
-| [lib/store.ts](lib/store.ts) | JSON-file persistence |
+| [lib/store.ts](lib/store.ts) | JSON-file persistence, with read-time migration |
+| [lib/ingredients.ts](lib/ingredients.ts) | Parse, format, scale and match ingredients |
+| [lib/safety.ts](lib/safety.ts) | **Deterministic food-safety rules** |
+| [lib/steps.ts](lib/steps.ts) | Timer extraction from method steps |
 | [app/ui/](app/ui/) | **The design system** — tokens and primitives |
 | [app/style-guide/page.tsx](app/style-guide/page.tsx) | Live documentation of the system |
 | [public/kitchen-pattern.svg](public/kitchen-pattern.svg) | The chef-theme backdrop tile |
@@ -30,6 +34,59 @@ Then open http://localhost:3000. No API keys, no database, no other setup.
 There are no REST routes. Mutations go through server actions, which are
 re-validated server-side because they're reachable by direct POST, not just
 through the UI.
+
+### Tested, not just generated
+
+The market problem with AI recipes isn't style, it's trust: generated text looks
+identical whether or not anyone has ever cooked it. So this app says which.
+
+A saved recipe carries a **cook log**. Until you've cooked it, it's labelled
+`Untested — nobody has cooked this yet`, on the recipe and in the list. When you
+cook it you log a rating and, more usefully, **what you changed** ("doubled the
+garlic, 20 min was plenty"). Over time the cookbook sorts itself into things
+that actually work and things that were only ever suggestions.
+
+This is the one thing the app can do that its competitors structurally can't:
+recipe search engines don't generate, and AI generators don't keep what they
+made.
+
+### Food safety
+
+[lib/safety.ts](lib/safety.ts) runs a **deterministic rule set** — not a model —
+over every recipe before it's shown: garlic stored in oil, dried kidney beans,
+rice cooling, poultry and mince doneness, home canning, raw egg and flour.
+
+It's rules on purpose. A generated recipe once told someone to store raw garlic
+in oil at room temperature, which is a botulism risk; the model that wrote it
+had no idea it was wrong, so asking a model to check itself buys nothing. Rules
+are boring, testable and can't hallucinate. They annotate rather than block, and
+suppress themselves when the recipe already handles it (tinned beans, a stated
+core temperature).
+
+### Cook mode
+
+`/recipes/[id]/cook` is the kitchen view: one step at a time in large type, a
+clickable progress bar, per-step timers parsed from the instructions
+([lib/steps.ts](lib/steps.ts)), arrow-key navigation, and the **Wake Lock API**
+to stop the screen sleeping mid-recipe. Finishing sends you back with the cook
+log already open.
+
+### Ingredients are structured
+
+An ingredient is `{ quantity, unit, item, note }`, not a string. That single
+change is what makes three features possible:
+
+- **Scaling** — the serving stepper rescales amounts, rounded so you get
+  `130 g`, never `133.333 g`, and `½ tbsp`, never `0.5`.
+- **Shopping list** — recipe ingredients are diffed against your fridge, so the
+  recipe can tell you the four things you still need to buy.
+- **Safety** — rules can tell `1 tin kidney beans` (fine) from `200 g dried
+  kidney beans` (not).
+
+Text goes in and comes back out — generators write lines, the edit box edits
+lines — but [lib/ingredients.ts](lib/ingredients.ts) is the only thing that
+converts between the two. Recipes saved before this change are migrated on read,
+so old files still open.
 
 ### Design system
 
@@ -117,7 +174,13 @@ parsing prose — the `RecipeDraft` shape maps onto a tool schema directly.
 ## Checks
 
 ```bash
+npm test          # 49 unit tests, no dependencies — uses node --test
 npm run lint
 npx tsc --noEmit
 npm run build
 ```
+
+Tests cover the parts where a silent bug destroys data or misleads a cook:
+ingredient parsing and scaling, pantry matching, the safety rules (including the
+real botulism case), timer extraction, and store migration of pre-existing
+recipes.

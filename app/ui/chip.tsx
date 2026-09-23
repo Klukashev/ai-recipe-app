@@ -77,3 +77,35 @@ export function ToggleChip({
     </button>
   );
 }
+
+export type BadgeTone = "neutral" | "accent" | "danger" | "caution";
+
+const BADGE_TONES: Record<BadgeTone, string> = {
+  neutral: "border-edge text-muted",
+  accent: "border-accent bg-accent-soft text-accent",
+  danger: "border-danger bg-danger-soft text-danger",
+  caution: "border-edge bg-accent-soft text-accent",
+};
+
+/**
+ * A small status marker. Unlike `Tag` this carries meaning rather than
+ * metadata — "Untested", "Cooked 3×", a safety severity.
+ */
+export function Badge({
+  children,
+  tone = "neutral",
+}: {
+  children: ReactNode;
+  tone?: BadgeTone;
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium",
+        BADGE_TONES[tone],
+      )}
+    >
+      {children}
+    </span>
+  );
+}

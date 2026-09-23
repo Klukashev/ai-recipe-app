@@ -1,5 +1,6 @@
 import {
   Alert,
+  Badge,
   Card,
   Field,
   Input,
@@ -160,6 +161,15 @@ export default function StyleGuidePage() {
               ))}
             </ul>
           </div>
+        </Card>
+      </Row>
+
+      <Row title="Badges">
+        <Card className="flex flex-wrap items-center gap-2">
+          <Badge>Untested</Badge>
+          <Badge tone="accent">Cooked 3 times</Badge>
+          <Badge tone="caution">Check doneness</Badge>
+          <Badge tone="danger">Safety note</Badge>
         </Card>
       </Row>
 

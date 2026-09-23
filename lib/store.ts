@@ -2,7 +2,8 @@ import { randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import type { Recipe, RecipeDraft, RecipeEdit } from "./types";
+import { parseIngredientLine } from "./ingredients.ts";
+import type { CookEntry, Ingredient, Recipe, RecipeDraft, RecipeEdit } from "./types";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const DATA_FILE = path.join(DATA_DIR, "recipes.json");
@@ -20,11 +21,47 @@ function enqueue<T>(work: () => Promise<T>): Promise<T> {
   return result;
 }
 
+/**
+ * Bring a stored record up to the current shape.
+ *
+ * Recipes saved before ingredients were structured hold plain strings, and
+ * recipes saved before the cook log existed have no log at all. Migrating on
+ * read (rather than with a one-off script) means the file on disk can lag the
+ * code safely, and an older backup still opens.
+ */
+export function migrate(raw: unknown): Recipe | null {
+  if (!raw || typeof raw !== "object") return null;
+  const record = raw as Record<string, unknown>;
+  if (typeof record.id !== "string") return null;
+
+  const ingredients: Ingredient[] = Array.isArray(record.ingredients)
+    ? record.ingredients.map((entry) =>
+        typeof entry === "string"
+          ? parseIngredientLine(entry)
+          : (entry as Ingredient),
+      )
+    : [];
+
+  const cookLog: CookEntry[] = Array.isArray(record.cookLog)
+    ? (record.cookLog as CookEntry[])
+    : [];
+
+  return {
+    ...(record as unknown as Recipe),
+    kind: typeof record.kind === "string" ? record.kind : "",
+    ingredients,
+    cookLog,
+  };
+}
+
 async function readAll(): Promise<Recipe[]> {
   try {
     const raw = await readFile(DATA_FILE, "utf8");
     const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as Recipe[]) : [];
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .map(migrate)
+      .filter((recipe): recipe is Recipe => recipe !== null);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
     throw error;
@@ -62,6 +99,8 @@ export async function createRecipe(draft: RecipeDraft): Promise<Recipe> {
       id: randomUUID(),
       createdAt: now,
       updatedAt: now,
+      // A new recipe is untested by definition. The UI leans on this.
+      cookLog: [],
     };
     const recipes = await readAll();
     recipes.push(recipe);
@@ -83,6 +122,26 @@ export async function updateRecipe(
       ...recipes[index],
       ...edit,
       updatedAt: new Date().toISOString(),
+    };
+    recipes[index] = updated;
+    await writeAll(recipes);
+    return updated;
+  });
+}
+
+/** Record that someone actually cooked this. Appends; never overwrites. */
+export async function addCookEntry(
+  id: string,
+  entry: CookEntry,
+): Promise<Recipe | null> {
+  return enqueue(async () => {
+    const recipes = await readAll();
+    const index = recipes.findIndex((recipe) => recipe.id === id);
+    if (index === -1) return null;
+
+    const updated: Recipe = {
+      ...recipes[index],
+      cookLog: [...recipes[index].cookLog, entry],
     };
     recipes[index] = updated;
     await writeAll(recipes);
